@@ -1,0 +1,23 @@
+{
+  "name": "chat-application",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "mongoose": "4.13.21",
+    "peer": "^0.6.1",
+    "redis": "^4.6.1",
+    "socket.io": "^4.5.4",
+    "socket.io-client": "^4.5.4",
+    "uuid": "^9.0.0"
+  }
+}
