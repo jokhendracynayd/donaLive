@@ -106,11 +106,8 @@ const teen_Pati=require('./routes/teen_pati/r_game_teen_pati')
 const fruit_game=require('./routes/teen_pati/r_game_fruit')
 /*** ################################## Importing routers ends ########################################### */
 
-
-
 /*** ################################## Apply routers in middleware starts ########################################### */
 // Applying Routes As A Middleware
-
 
 app.use("/", indexRouter);
 app.use("/api/user_login", userLogin);

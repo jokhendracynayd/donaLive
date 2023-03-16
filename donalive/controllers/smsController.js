@@ -14,6 +14,7 @@ const sendSms = (req,res,next) => {
   .verifications
   .create({to: mobile, channel: 'sms'})
   .then(verification => {
+    console.log(verification)
     req.body.verification=verification.sid;
     next();
   })

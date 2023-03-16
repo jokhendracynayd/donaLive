@@ -102,6 +102,42 @@ router.post('/byField',
 );
 
 
+router.post('/newcommentUseranme',async(req,res)=>{
+    const {fieldNames,fieldValues}=req.body;
+    console.log(fieldNames,fieldValues);
+    TableModel.getUsername(fieldNames,fieldValues,async(err,docs)=>{
+        if(err){
+            res.json({
+                success:false,
+                msg:err.message
+            })
+        }
+        else{
+            const output = await docs.reduce(async(prev,curr)=>{
+                console.log(curr.userDetails[0].username)
+                if(curr.userDetails[0].username){
+                  await axios.post('https://3.7.87.3:3000/api/giftTransation/getLevel',{user_id:curr.userDetails[0].username}).then(response=>{
+                    if(response.data.success){
+                        curr.userDetails[0].level=response.data.data.level
+                        prev.push(curr);
+                    }
+                  }).catch(err=>{
+                    console.log(err);
+                  })
+                }
+                return prev;
+            },[]);
+            // console.log(output);
+            res.json({
+                success:true,
+                msg:"Data fetched",
+                data:output
+            })
+        }
+    })
+
+}),
+
 router.post('/commentUsername',(req,res)=>{
     const {fieldNames,fieldValues}=req.body;
     let index=fieldNames.indexOf("comment_by_user_id")

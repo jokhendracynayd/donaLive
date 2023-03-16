@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const port = 3030;
 const cors = require("cors");
+const axios=require('axios')
 var https_options = {
   key: fs.readFileSync("keys/private.key"),
   cert: fs.readFileSync("keys/certificate.crt"),
@@ -107,25 +108,44 @@ io.on("connection", (socket) => {
       user: userId,
     });
   });
+// TODO:  adding new feature in comment section
 
   socket.on(
     "audio_party_comment",
-    (liveStreamingIdGet, userComment, UserIdGet) => {
+    (liveStreamingIdGet, userComment, UserIdGet,userTo=null,price=null) => {
       let commentCreated = {
         comment_type: "live_streaming",
         comment_desc: userComment,
         comment_entity_id: liveStreamingIdGet,
         comment_by_user_id: UserIdGet,
       };
+    
       TableUserLogin.getSingleDataByFieldName("username", UserIdGet,(err,doc)=>{
         if(err){
-          console.log(err);
-        }else{
-          commentCreated.user_profile_pic=doc.user_profile_pic;
-          commentCreated.user_nick_name=doc.user_nick_name;
-          commentCreated.level=doc.level;
-          commentCreated.status=doc.status;
           io.to(liveStreamingIdGet).emit("userComment", commentCreated);
+        }else{
+          let payload={user_id:UserIdGet}
+          axios.post('https://3.7.87.3:3000/api/giftTransation/getLevel',payload).then((res)=>{
+            commentCreated.level=res.data.data.level;
+            commentCreated.user_profile_pic=doc.user_profile_pic;
+            commentCreated.user_nick_name=doc.user_nick_name;
+            commentCreated.status=doc.status;
+            io.to(liveStreamingIdGet).emit("userComment", commentCreated);
+            if(userTo!=null && price!=null){
+              commentCreated.userTo=userTo;
+              commentCreated.price=price;
+            }
+          }).catch((err)=>{
+            if(userTo!=null && price!=null){
+              commentCreated.userTo=userTo;
+              commentCreated.price=price;
+            }
+            commentCreated.level=0;
+            commentCreated.user_profile_pic=doc.user_profile_pic;
+            commentCreated.user_nick_name=doc.user_nick_name;
+            commentCreated.status=doc.status;
+            io.to(liveStreamingIdGet).emit("userComment", commentCreated);
+          });
         }
       })
     }
