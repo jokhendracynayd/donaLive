@@ -166,7 +166,6 @@ router.post('/byFields',
 
 function addCoinsToUser(live_streaming_id,data){
     return new Promise((resolve,reject)=>{
-        // console.log("👍👍👍👍👍👍👍👍👍👍👍")
         let fieldNames=['gifting_to_user','livestreaming_id'];
         let fieldValues=[data.userDetails[0].username,live_streaming_id];
         TableModelUserGifting.getDataByFieldNames(fieldNames,fieldValues,(err,docs)=>{
@@ -205,7 +204,8 @@ router.post('/byFieldsWithCoins',(req,res)=>{
             if(docs.length==0){
                 res.json({
                     success:false,
-                    msg:'No data found'
+                    msg:'No data found',
+                    data:[]
                 })
             }
             else{

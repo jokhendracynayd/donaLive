@@ -81,8 +81,8 @@ function hoursAndCoins(data){
       startDay=new Date().toISOString();
     let time11= startDay.split('T');
     let time22=time11[0].split('-');
-    time22[2]="15";
-    time22[1]="02";
+    time22[2]="01";
+    // time22[1]="02";
     // console.log(time22)
     let newTime12=time22.join('-');
     time11[0]=newTime12;
@@ -90,7 +90,7 @@ function hoursAndCoins(data){
       lastDay=new Date().toISOString();
       let time1= startDay.split('T');
       let time2=time1[0].split('-');
-      time2[2]="30";
+      time2[2]="15";
       let newTime2=time2.join('-');
       time1[0]=newTime2;
       lastDay=time1.join('T');

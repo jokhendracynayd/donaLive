@@ -405,7 +405,6 @@ router.post('/all-hostCoins',(req,res)=>{
 })
 
 
-
 router.post('/prevall-hostCoins',(req,res)=>{
     const {fieldNames,fieldValues}=req.body;
     HostTable.getDataByFieldNames(fieldNames,fieldValues,(err,doc)=>{
@@ -415,6 +414,7 @@ router.post('/prevall-hostCoins',(req,res)=>{
                 msg:err.message
             })
         }else{
+            console.log(doc)
             getAllHostCoins(doc,(response)=>{
                 res.json({
                     success:true,
@@ -476,6 +476,7 @@ router.post('/Prevall-hostDurations/:getDays',(req,res)=>{
             let days=0;      
             doc.forEach(ele=>{
                 PrevstartAndendDate(req.params.getDays).then(day=>{
+                    console.log(day)
                     LiveStreamingTable.getSpecificDuration(ele.user_id,day.startDay,day.lastDay,(err,docs)=>{
                         if(err){
                             console.log(err.message);

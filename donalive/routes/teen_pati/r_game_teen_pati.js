@@ -13,7 +13,7 @@ const {debitBalance}=require('../../controllers/debite_balance');
 const {createBulfeAmount}=require('../../utilis/bulfe_value');
 
 
-//TODO: create game
+
 
 router.get('/newCreate',(req,res)=>{
   TableModel.getDataByFieldName("game_status","active",(err,docs)=>{
@@ -67,6 +67,22 @@ router.get('/newCreate',(req,res)=>{
   })
 })
 
+
+// performance.now()
+
+router.get('/resulthistory',(req,res)=>{
+  TableModel.lastGameResult((err,doc)=>{
+    if(err){
+      console.log(err.message)
+    }else{
+      res.json({
+        success:true,
+        msg:"Data fetch",
+        data:doc
+      })
+    }
+  })
+})
 
 
 router.get('/create',(req,res)=>{
