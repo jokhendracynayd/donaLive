@@ -17,7 +17,7 @@ const io = require("socket.io")(http);
 const mongoose = require("mongoose");
 const Table = require("./database");
 const config = require("./config/database");
-const client = require("./config/redis");
+// const client = require("./config/redis");
 
 /**
  * mongodb connections
@@ -107,6 +107,8 @@ io.on("connection", (socket) => {
       user: userId,
     });
   });
+
+// TODO: Updating on comment part adding level and user details
 
   socket.on(
     "audio_party_comment",
