@@ -8,7 +8,7 @@ var UserLoginModel = require("./models/m_user_login");
 var config = require('./config/database');
 var io=require("socket.io")
 require('./routes/cron_job');
-require('./config/redis');
+//require('./config/redis');
 
 var app = express();
 
