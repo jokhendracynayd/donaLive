@@ -672,6 +672,7 @@ router.post("/getLevel", (req, res) => {
     }
   });
 });
+
 router.get(
   "/byId/:id",
   // passport.authenticate("jwt", { session: false }),

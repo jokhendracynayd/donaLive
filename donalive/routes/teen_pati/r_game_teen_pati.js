@@ -11,11 +11,95 @@ const client =require('../../config/redis')
 const {gameStatus_teenPatti,isWinnerAnnounced}=require('../../middleware/game_status');
 const {debitBalance}=require('../../controllers/debite_balance');
 const {createBulfeAmount}=require('../../utilis/bulfe_value');
+const axios=require('axios');
+const api=require('../../config/api');
+
+
+/**
+ * @Description : This function is used to check the active game and end the game if time is over 30 sec then end the game
+ */
 
 
 
+// this code push to github by Jokhendra 
 
-router.get('/newCreate',(req,res)=>{
+
+async function check_active_game_and_end(){
+  TableModel.getDataByFieldName("game_status","active",(err,docs)=>{
+    if(err){
+      console.log(err.message)
+    }else{
+      if(docs.length>0){
+        docs.forEach(async(doc)=>{
+          const isExist=await client.GET(`${doc._id}`);
+          if(isExist==null){
+           try {
+            await axios.get('http://127.0.0.1:3000/api/teen-pati/winner-announcement/'+doc._id)
+           } catch (error) {
+            console.log(error)
+           }
+          }
+        })
+      }
+    }
+  })
+}
+
+
+//TODO: Creating a new game Route
+
+
+router.get('/new',async(req,res)=>{
+ const teen_patti_game=await client.GET("teen_patti_game");
+ if(teen_patti_game==null){
+  var dt;
+  Today = new Date();
+  dt = Today.getTime();
+  dt = dt-132641626720;
+  var shortNumber = dt+"";
+  game_id = shortNumber.substring(1, shortNumber.length-2);
+  const newRow = new TableModel({
+    game_id:game_id,
+  });
+  TableModel.addRow(newRow,async(err,doc)=>{
+    if(err){
+      return res.json({
+        success:false,
+        msg:err.message
+      })
+    }else{
+      await client.SETEX(`${doc._id}`,35,JSON.stringify(doc));
+      await client.SETEX("teen_patti_game",30,JSON.stringify(doc));
+      res.json({
+        success:true,
+        msg:"Game created",
+        data:doc
+      })
+      check_active_game_and_end();
+    }
+  })
+ 
+ }else{
+  const ttl=await client.TTL("teen_patti_game");
+  if(ttl>=20){
+    res.json({
+      success:true,
+      msg:"Game already created",
+      data:JSON.parse(teen_patti_game) 
+    })
+    check_active_game_and_end();
+  }else{
+    res.json({
+    success:false,
+    msg:"Game already created but time is less than 25 sec",
+    wait_time:ttl
+   })
+   check_active_game_and_end();
+  }
+ }
+})
+
+router.get('/newCreate',async (req,res)=>{
   TableModel.getDataByFieldName("game_status","active",(err,docs)=>{
     if(err){
       res.json({
@@ -24,66 +108,37 @@ router.get('/newCreate',(req,res)=>{
       })
     }else{
       if(docs.length==0){
-        value = myCache.get("teen_patti_game");
-        if(value!=undefined){
-          res.json({
-            success:false,
-            msg:"wait for while"
-          })
-        }else{
-          var dt;
-          Today = new Date();
-          dt = Today.getTime();
-          dt = dt-132641626720;
-          var shortNumber = dt+"";
-          game_id = shortNumber.substring(1, shortNumber.length-2);
-          const newRow = new TableModel({
-            game_id:game_id,
-          });
-          TableModel.addRow(newRow,(err,doc)=>{
-            if(err){
-              res.json({
-                success:false,
-                msg:err.message
-              })
-            }else{
-              myCache.set("teen_patti_game",doc,30);
-              res.json({
-                success:true,
-                msg:"Game created",
-                data:doc
-              })
-            }
-          })
-        }
-      }else{
-        res.json({
-          success:true,
-          msg:"found the data",
-          data:docs
+        var dt;
+        Today = new Date();
+        dt = Today.getTime();
+        dt = dt-132641626720;
+        var shortNumber = dt+"";
+        game_id = shortNumber.substring(1, shortNumber.length-2);
+        const newRow = new TableModel({
+          game_id:game_id,
+        });
+        TableModel.addRow(newRow,async(err,doc)=>{
+          if(err){
+            res.json({
+              success:false,
+              msg:err.message
+            })
+          }else{
+            await client.set("game_id",game_id,(err,reply)=>{
+              if(err) throw err;
+              console.log(reply)
+            })
+            res.json({
+              success:true,
+              msg:"Game created",
+              data:doc
+            })
+          }
         })
       }
     }
   })
 })
-
-
-// performance.now()
-
-router.get('/resulthistory',(req,res)=>{
-  TableModel.lastGameResult((err,doc)=>{
-    if(err){
-      console.log(err.message)
-    }else{
-      res.json({
-        success:true,
-        msg:"Data fetch",
-        data:doc
-      })
-    }
-  })
-})
-
 
 router.get('/create',(req,res)=>{
   TableModel.getDataByFieldName("game_status","active",(err,docs)=>{
@@ -127,6 +182,21 @@ router.get('/create',(req,res)=>{
     }
   })
 })
+
+router.get('/resulthistory',(req,res)=>{
+  TableModel.lastGameResult((err,doc)=>{
+    if(err){
+      console.log(err.message)
+    }else{
+      res.json({
+        success:true,
+        msg:"Data fetch",
+        data:doc
+      })
+    }
+  })
+})
+
 
 
 router.get('/',
@@ -248,13 +318,6 @@ router.get('/ended/:id',(req,res)=>{
     })
 })
 
-//TODO:new winner announcement
-
-router.get('/new-winner-announcement/:id',[isWinnerAnnounced],(req,res)=>{
-  console.log("winner announcement");
-  res.send("winner announcement");
-})
-
 router.get('/winner-announcement/:id',(req,res)=>{
   const id=req.params.id;
   TableModel.getDataById(id,(err,doc)=>{
@@ -270,7 +333,7 @@ router.get('/winner-announcement/:id',(req,res)=>{
           TopUserWinner:doc.TopUserWinner
         })
       }else if(doc.winnerAnnounced=="no"){
-        TableModel.getDataById(id,(err,doc)=>{
+        TableModel.getDataById(id,async(err,doc)=>{
           if(err){
             console.log(err.message)
           }else{
@@ -282,6 +345,16 @@ router.get('/winner-announcement/:id',(req,res)=>{
             if(uniqueUserCheck(doc)){
               let luck=['A','B','C'];
               winner=luck[Math.floor(Math.random() * 3)];
+              let last_winner_game=await client.GET('last_teen_patti_game_winner');
+              if(last_winner_game==winner){
+                while(true){
+                  winner=luck[Math.floor(Math.random() * 3)];
+                  if(last_winner_game!=winner){
+                    await client.SET('last_teen_patti_game_winner',winner);
+                    break;
+                  }
+                }
+              }
             }
             else{
               if(a<=b&&a<=c ){
@@ -424,7 +497,6 @@ router.get('/staticAnnouncement',(req,res)=>{
   })
 })
 
-//TODO:new update api
 
 router.put('/newUpdate/:id',[gameStatus_teenPatti,debitBalance],(req,res)=>{
   const id=req.params.id;

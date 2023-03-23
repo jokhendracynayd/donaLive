@@ -12,7 +12,6 @@ const {updateBalance,creditBalance}=require('../../controllers/transaction/updat
 const {createBulfeAmount}=require('../../utilis/bulfe_value');
 const {boat_generate}=require('../../utilis/boat_generate');
 
-//TODO Create a new game
 
 router.get('/create',(req,res)=>{
   TableModel.getDataByFieldName("game_status","active",(err,docs)=>{
@@ -439,7 +438,6 @@ router.get('/staticAnnouncement',(req,res)=>{
 })
 
 
-//TODO: update seat amount
 
 router.put('/updateSeatAmount/:id',(req,res)=>{
   const id=req.params.id;

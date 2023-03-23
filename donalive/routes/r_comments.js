@@ -5,6 +5,7 @@ const rc = require('./../controllers/responseController');
 const passport = require("passport");
 const LoginUserModel=require('../models/m_user_login');
 const axios=require('axios');
+const api=require('../config/api');
 
 router.post('/create',
     // passport.authenticate("jwt", { session: false }),
@@ -102,9 +103,10 @@ router.post('/byField',
 );
 
 
-router.post('/newcommentUseranme',async(req,res)=>{
+//TODO:New comment by username
+
+router.post('/commentUsername',async(req,res)=>{
     const {fieldNames,fieldValues}=req.body;
-    console.log(fieldNames,fieldValues);
     TableModel.getUsername(fieldNames,fieldValues,async(err,docs)=>{
         if(err){
             res.json({
@@ -113,82 +115,98 @@ router.post('/newcommentUseranme',async(req,res)=>{
             })
         }
         else{
-            const output = await docs.reduce(async(prev,curr)=>{
-                console.log(curr.userDetails[0].username)
-                if(curr.userDetails[0].username){
-                  await axios.post('https://3.7.87.3:3000/api/giftTransation/getLevel',{user_id:curr.userDetails[0].username}).then(response=>{
-                    if(response.data.success){
-                        curr.userDetails[0].level=response.data.data.level
-                        prev.push(curr);
-                    }
-                  }).catch(err=>{
-                    console.log(err);
-                  })
-                }
-                return prev;
-            },[]);
-            // console.log(output);
-            res.json({
-                success:true,
-                msg:"Data fetched",
-                data:output
-            })
+            if(docs.length==0){
+                return res.json({
+                    success:true,
+                    msg:'No data found',
+                    data:docs
+                })
+            }else
+            {
+                let count=0;
+                await docs.map(async(curr)=>{
+                    await axios.post(`${api.Api}/giftTransation/getLevel`,{user_id:curr.userDetails[0].username}).then(response=>{
+                        if(response.data.success){
+                            curr.userDetails[0].level=response.data.data.level
+                            count++;
+                            if(count==docs.length){
+                                return res.json({
+                                    success:true,
+                                    msg:"Data fetched",
+                                    data:docs
+                                })
+                            }
+                        }
+                      }).catch(err=>{
+                        curr.userDetails[0].level=0;
+                        count++;
+                        if(count==docs.length){
+                            return res.json({
+                                success:true,
+                                msg:"Data fetched",
+                                data:docs
+                            })
+                        }
+                      })
+                })
+            }
+
         }
     })
 
-}),
+})
 
-router.post('/commentUsername',(req,res)=>{
-    const {fieldNames,fieldValues}=req.body;
-    let index=fieldNames.indexOf("comment_by_user_id")
-    let userId=fieldValues[index];
-    let payload={user_id:userId}
-    axios.post('https://3.7.87.3:3000/api/giftTransation/getLevel',payload).then(response=>{
-        if(response.data.success){
-            const {fieldNames,fieldValues}=req.body;
-            TableModel.getUsername(fieldNames,fieldValues,async(err,docs)=>{
-                if(err){
-                res.json(err.message)
-            }else{
-                res.json({
-                    success:true,
-                    msg:"Data fetched",
-                    data:docs,
-                    level:response.data.data.level
-                })
-            }
-            })
-        }else{
-            const {fieldNames,fieldValues}=req.body;
-            TableModel.getUsername(fieldNames,fieldValues,async(err,docs)=>{
-                if(err){
-                res.json(err.message)
-            }else{
-                res.json({
-                    success:true,
-                    msg:"Data fetched",
-                    data:docs,
-                })
-            }
-            })
-        }
-    }).catch(err=>{
-        const {fieldNames,fieldValues}=req.body;
-        TableModel.getUsername(fieldNames,fieldValues,async(err,docs)=>{
-            if(err){
-            res.json(err.message)
-        }else{
-            res.json({
-                success:true,
-                msg:"Data fetched",
-                data:docs,
-            })
-        }
-        })
-    })
+// router.post('/commentUsername',(req,res)=>{
+//     const {fieldNames,fieldValues}=req.body;
+//     let index=fieldNames.indexOf("comment_by_user_id")
+//     let userId=fieldValues[index];
+//     let payload={user_id:userId}
+//     axios.post('https://3.7.87.3:3000/api/giftTransation/getLevel',payload).then(response=>{
+//         if(response.data.success){
+//             const {fieldNames,fieldValues}=req.body;
+//             TableModel.getUsername(fieldNames,fieldValues,async(err,docs)=>{
+//                 if(err){
+//                 res.json(err.message)
+//             }else{
+//                 res.json({
+//                     success:true,
+//                     msg:"Data fetched",
+//                     data:docs,
+//                     level:response.data.data.level
+//                 })
+//             }
+//             })
+//         }else{
+//             const {fieldNames,fieldValues}=req.body;
+//             TableModel.getUsername(fieldNames,fieldValues,async(err,docs)=>{
+//                 if(err){
+//                 res.json(err.message)
+//             }else{
+//                 res.json({
+//                     success:true,
+//                     msg:"Data fetched",
+//                     data:docs,
+//                 })
+//             }
+//             })
+//         }
+//     }).catch(err=>{
+//         const {fieldNames,fieldValues}=req.body;
+//         TableModel.getUsername(fieldNames,fieldValues,async(err,docs)=>{
+//             if(err){
+//             res.json(err.message)
+//         }else{
+//             res.json({
+//                 success:true,
+//                 msg:"Data fetched",
+//                 data:docs,
+//             })
+//         }
+//         })
+//     })
 
     
-})
+// })
 router.post('/byFields',
     // passport.authenticate("jwt", { session: false }),
     (req, res) => {

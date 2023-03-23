@@ -735,6 +735,7 @@ router.post('/loginFromAdminPanel',
 
         var email = req.body.email;
         var password = req.body.password;
+        console.log(email, password)
         TableModel.loginViaAdminPanel(email, password, (err, docs) => {
             if (err) {
                 return rc.setResponse(res, {
