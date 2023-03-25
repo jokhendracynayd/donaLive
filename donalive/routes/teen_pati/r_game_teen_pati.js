@@ -222,6 +222,7 @@ router.get('/',
 router.get('/byId/:id',
     // passport.authenticate("jwt", { session: false }),
     (req, res) => {
+      console.log("this Api is hiting ...............................................................................");
         const id = req.params.id;
         TableModel.getDataById(id, (err, doc) => {
             if (err) {
@@ -487,16 +488,17 @@ router.get('/last7result',(req,res)=>{
   })
 })
 
-router.get('/staticAnnouncement',(req,res)=>{
-  res.json({
-    success:true,
-    msg:"Winner result",
-    data:"A",
-    wining: {"555555": {"WinAmount": 580,"BetAmount": 200}},
-    TopUserWinner:[{"555555":456}]
-  })
-})
+// router.get('/staticAnnouncement',(req,res)=>{
+//   res.json({
+//     success:true,
+//     msg:"Winner result",
+//     data:"A",
+//     wining: {"555555": {"WinAmount": 580,"BetAmount": 200}},
+//     TopUserWinner:[{"555555":456}]
+//   })
+// })
 
+// TODO: to make changes in update port value some time update decreasing
 
 router.put('/newUpdate/:id',[gameStatus_teenPatti,debitBalance],(req,res)=>{
   const id=req.params.id;
@@ -534,7 +536,7 @@ router.put('/newUpdate/:id',[gameStatus_teenPatti,debitBalance],(req,res)=>{
             msg:err.message
           });
         }else{
-          await  createBulfeAmount().then(bulfe=>{
+          await  createBulfeAmount(docs).then(bulfe=>{
             docs.seat.A_total_amount=docs.seat.A_total_amount+bulfe[0];
             docs.seat.B_total_amount=docs.seat.B_total_amount+bulfe[1];
             docs.seat.C_total_amount=docs.seat.C_total_amount+bulfe[2];

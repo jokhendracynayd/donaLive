@@ -17,7 +17,7 @@ router.post('/create',
     // passport.authenticate("jwt", { session: false }),
     (req, res) => {
         // const newRow = req.body;
-        console.log(req.body);
+        // console.log(req.body);
 
         const newRow = new TableModel(req.body);
         // newRow.institute = req.user.institute;

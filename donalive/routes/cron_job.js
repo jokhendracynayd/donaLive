@@ -86,24 +86,24 @@ const axios =require('axios');
 //   })
 // })
 
-// cron.schedule('*/1 * * * * *',()=>{
-//   TableModelTeenPatti.getDataByFieldName("game_status","active",(err,doc)=>{
-//     if(err){
-//       console.log(err.message);
-//     }else{
-//       if(doc.length!==0){  
-//         let count=doc[0].game_last_count;
-//         if(count>0){
-//           TableModelTeenPatti.updateCount(doc[0]._id,{game_last_count:--count},(err,docs)=>{
-//             if(err){
-//               console.log(err.message);
-//             }else{
-//               // console.log(docs);
-//             }
-//           })
-//         }
-//       }
-//     }
-//   })
+cron.schedule('*/1 * * * * *',()=>{
+  TableModelTeenPatti.getDataByFieldName("game_status","active",(err,doc)=>{
+    if(err){
+      console.log(err.message);
+    }else{
+      if(doc.length!==0){  
+        let count=doc[0].game_last_count;
+        if(count>0){
+          TableModelTeenPatti.updateCount(doc[0]._id,{game_last_count:--count},(err,docs)=>{
+            if(err){
+              console.log(err.message);
+            }else{
+              // console.log(docs);
+            }
+          })
+        }
+      }
+    }
+  })
 
-// })
+})

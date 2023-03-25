@@ -127,7 +127,7 @@ io.on("connection", (socket) => {
           io.to(liveStreamingIdGet).emit("userComment", commentCreated);
         }else{
           let payload={user_id:UserIdGet}
-          axios.post('https://3.7.87.3:3000/api/giftTransation/getLevel',payload).then((res)=>{
+          axios.post('https://13.234.16.85:3000/api/giftTransation/getLevel',payload).then((res)=>{
             commentCreated.level=res.data.data.level;
             commentCreated.user_profile_pic=doc.user_profile_pic;
             commentCreated.user_nick_name=doc.user_nick_name;
@@ -221,8 +221,8 @@ io.on("connection", (socket) => {
       created_at: createdAtGetH,
     };
     usersOnSeat.push(userJoinedOnSeat);
-    io.to(livestreamingId).emit("totalUsersOnSeat", usersOnSeat);
-    io.to(livestreamingId).emit("newUserOnSeat", userJoinedOnSeat);
+    io.to(live_streaming_idGetH).emit("totalUsersOnSeat", usersOnSeat);
+    io.to(live_streaming_idGetH).emit("newUserOnSeat", userJoinedOnSeat);
   });
   socket.on(
     "textMuteUsers",
