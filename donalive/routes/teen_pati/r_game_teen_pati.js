@@ -34,7 +34,7 @@ async function check_active_game_and_end(){
           const isExist=await client.GET(`${doc._id}`);
           if(isExist==null){
            try {
-            await axios.get('http://127.0.0.1:3000/api/teen-pati/winner-announcement/'+doc._id)
+            await axios.get(`${api.Api}/teen-pati/winner-announcement/`+doc._id)
            } catch (error) {
             console.log(error)
            }
