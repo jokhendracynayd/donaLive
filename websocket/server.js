@@ -21,21 +21,19 @@ const config = require("./config/database");
 // const client = require("./config/redis");
 
 /**
- * mongodb connections
+ * @Dynamic API
  */
-mongoose.Promise = global.Promise;
-mongoose.connect(config.database, {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useUnifiedTopology: true,
-});
+const api = require("./config/api");
+
 
 /**
  * @description Middelware
  */
 
-const findallIndex = require("./utils/remove_joined_user");
 
+// change by jokhendra in server file
+
+const findallIndex = require("./utils/remove_joined_user");
 const TableStickerMaster = require("./models/m_sticker_master");
 const TableModelCurrentGifting = require("./models/m_user_current_balance");
 const TableLiveStreaming = require("./models/m_live_streaming");
@@ -75,28 +73,6 @@ var usersjoined = [];
 const {CreateGame,BiddingOnseat}=require('./utils/teen_pati');
 
 
-
-
-const TeenPatiGame=io.of('/teen_patti');
-TeenPatiGame.on('connection', async(socket) => {
-  socket.on("checkAndCreate",(data)=>{
-    function createGame(){
-      console.log("game created");
-    }
-  })
-  socket.on('bidding',(data)=>{
-    BiddingOnseat(data).then((newData)=>{
-      console.log(newData)
-      TeenPatiGame.emit('bidding',newData);
-    }).catch((err)=>{
-      console.log(err);
-      TeenPatiGame.emit("bidding",err);
-    });
-  })
-});
-
-// setInterval(createGame,35000);
-
 io.on("connection", (socket) => {
   console.log("Audio party user connected");
 
@@ -127,7 +103,7 @@ io.on("connection", (socket) => {
           io.to(liveStreamingIdGet).emit("userComment", commentCreated);
         }else{
           let payload={user_id:UserIdGet}
-          axios.post('https://3.7.87.3:3000/api/giftTransation/getLevel',payload).then((res)=>{
+          axios.post(`${api.Api}/giftTransation/getLevel`,payload).then((res)=>{
             commentCreated.level=res.data.data.level;
             commentCreated.user_profile_pic=doc.user_profile_pic;
             commentCreated.user_nick_name=doc.user_nick_name;
@@ -339,4 +315,4 @@ http.listen(port);
 
 console.log("Listening on port " + http.address().port); //Listening on port 8888
 
-// module.exports=io;
+
